@@ -1,0 +1,204 @@
+import { motion } from "framer-motion";
+import { useInView } from "framer-motion";
+import { useRef, useState } from "react";
+import { Phone, Mail, MapPin, Send, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+const contactInfo = [
+  {
+    icon: Phone,
+    label: "Telefone",
+    value: "966 622 017",
+    href: "tel:966622017",
+  },
+  {
+    icon: Mail,
+    label: "Email",
+    value: "info@serv2all.pt",
+    href: "mailto:info@serv2all.pt",
+  },
+  {
+    icon: MapPin,
+    label: "Localização",
+    value: "Portugal",
+    href: null,
+  },
+];
+
+const Contact = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+    setTimeout(() => setIsSubmitted(false), 3000);
+  };
+
+  return (
+    <section id="contactos" className="py-24 relative overflow-hidden bg-card">
+      {/* Background */}
+      <div className="absolute inset-0 bg-grid opacity-10" />
+
+      <div className="container mx-auto px-4 relative z-10" ref={ref}>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <span className="text-primary font-medium mb-4 block">Contacte-nos</span>
+          <h2 className="font-display text-3xl md:text-5xl font-bold mb-6">
+            Vamos Criar <span className="text-gradient">Algo Incrível</span>
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Entre em contacto connosco e descubra como podemos ajudar o seu negócio a crescer online.
+          </p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          {/* Contact Info */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <h3 className="font-display text-2xl font-semibold mb-8">Fale Connosco</h3>
+
+            <div className="space-y-6 mb-12">
+              {contactInfo.map((info) => (
+                <div key={info.label} className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shrink-0">
+                    <info.icon className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-sm">{info.label}</p>
+                    {info.href ? (
+                      <a href={info.href} className="text-foreground font-medium hover:text-primary transition-colors">
+                        {info.value}
+                      </a>
+                    ) : (
+                      <p className="text-foreground font-medium">{info.value}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Stats */}
+            <div className="glass rounded-2xl p-8">
+              <h4 className="font-display font-semibold mb-6">Porque Escolher a Serv2all?</h4>
+              <ul className="space-y-4">
+                {[
+                  "Baixos custos, alta qualidade",
+                  "Projetos 100% personalizados",
+                  "Anos de experiência comprovada",
+                  "Suporte dedicado pós-lançamento",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-primary shrink-0" />
+                    <span className="text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <div className="card-elevated rounded-2xl p-8 border border-border/50">
+              <h3 className="font-display text-2xl font-semibold mb-6">Pedir Orçamento</h3>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-muted-foreground mb-2 block">Nome</label>
+                    <Input
+                      type="text"
+                      placeholder="O seu nome"
+                      required
+                      className="bg-muted/50 border-border/50 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-muted-foreground mb-2 block">Email</label>
+                    <Input
+                      type="email"
+                      placeholder="email@exemplo.pt"
+                      required
+                      className="bg-muted/50 border-border/50 focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground mb-2 block">Telefone</label>
+                  <Input
+                    type="tel"
+                    placeholder="O seu número"
+                    className="bg-muted/50 border-border/50 focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground mb-2 block">Tipo de Projeto</label>
+                  <select 
+                    className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border/50 text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    <option value="website">Website</option>
+                    <option value="crm">CRM</option>
+                    <option value="ecommerce">E-Commerce</option>
+                    <option value="branding">Imagem Corporativa</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground mb-2 block">Mensagem</label>
+                  <Textarea
+                    placeholder="Descreva o seu projeto..."
+                    rows={4}
+                    required
+                    className="bg-muted/50 border-border/50 focus:border-primary resize-none"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="hero"
+                  size="xl"
+                  className="w-full"
+                  disabled={isSubmitted}
+                >
+                  {isSubmitted ? (
+                    <>
+                      <CheckCircle className="w-5 h-5" />
+                      Enviado com Sucesso!
+                    </>
+                  ) : (
+                    <>
+                      Enviar Mensagem
+                      <Send className="w-5 h-5" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Contact;
