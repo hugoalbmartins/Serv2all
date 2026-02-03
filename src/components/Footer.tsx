@@ -7,12 +7,18 @@ const Footer = () => {
   };
 
   return (
-    <footer className="py-12 relative overflow-hidden border-t border-border/50">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-hero" />
+    <footer className="py-12 relative overflow-hidden border-t border-border/30">
+      {/* Semi-transparent background */}
+      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col md:flex-row items-center justify-between gap-8"
+        >
           {/* Logo & Info */}
           <div className="text-center md:text-left">
             <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
@@ -56,14 +62,20 @@ const Footer = () => {
           >
             <ArrowUp className="w-5 h-5 text-primary-foreground" />
           </motion.button>
-        </div>
+        </motion.div>
 
         {/* Copyright */}
-        <div className="mt-12 pt-8 border-t border-border/50 text-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-12 pt-8 border-t border-border/30 text-center"
+        >
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} Serv2all. Todos os direitos reservados.
           </p>
-        </div>
+        </motion.div>
       </div>
     </footer>
   );

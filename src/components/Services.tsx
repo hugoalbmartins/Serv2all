@@ -125,19 +125,30 @@ const Services = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
 
+  const slideVariants = {
+    hidden: (direction: number) => ({
+      opacity: 0,
+      x: direction,
+    }),
+    visible: {
+      opacity: 1,
+      x: 0,
+    }
+  };
+
   return (
     <section id="servicos" className="py-24 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-hero" />
-      <div className="absolute inset-0 bg-grid opacity-20" />
+      {/* Semi-transparent background */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
 
       <div className="container mx-auto px-4 relative z-10" ref={ref}>
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+          className="glass rounded-2xl p-8 md:p-12 text-center max-w-3xl mx-auto mb-16"
         >
           <span className="text-primary font-medium mb-4 block">Os Nossos Serviços</span>
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-6">
@@ -150,52 +161,62 @@ const Services = () => {
 
         {/* Services Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
-            <motion.div
-              key={service.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group relative"
-            >
-              <div className="card-elevated rounded-2xl p-8 h-full hover-glow border border-border/50 transition-all duration-500">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <service.icon className="w-7 h-7 text-primary-foreground" />
+          {services.map((service, index) => {
+            // Alternate slide direction: left, center (up), right
+            const directions = [-100, 0, 100, -100, 0, 100];
+            const direction = directions[index % 6];
+            
+            return (
+              <motion.div
+                key={service.title}
+                custom={direction}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                variants={slideVariants}
+                transition={{ duration: 0.7, delay: index * 0.1, ease: "easeOut" }}
+                className="group relative"
+              >
+                <div className="glass rounded-2xl p-8 h-full hover-glow border border-border/30 transition-all duration-500">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <service.icon className="w-7 h-7 text-primary-foreground" />
+                  </div>
+
+                  {/* Content */}
+                  <h3 className="font-display font-semibold text-xl mb-3">{service.title}</h3>
+                  <p className="text-muted-foreground mb-6">{service.description}</p>
+
+                  {/* Features */}
+                  <ul className="space-y-2 mb-6">
+                    {service.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2 text-sm">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Learn More Button */}
+                  <button
+                    onClick={() => setSelectedService(service)}
+                    className="flex items-center text-primary hover:text-primary/80 transition-colors group/btn"
+                  >
+                    <span className="text-sm font-medium">Saber mais</span>
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                  </button>
                 </div>
-
-                {/* Content */}
-                <h3 className="font-display font-semibold text-xl mb-3">{service.title}</h3>
-                <p className="text-muted-foreground mb-6">{service.description}</p>
-
-                {/* Features */}
-                <ul className="space-y-2 mb-6">
-                  {service.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Learn More Button */}
-                <button
-                  onClick={() => setSelectedService(service)}
-                  className="flex items-center text-primary hover:text-primary/80 transition-colors group/btn"
-                >
-                  <span className="text-sm font-medium">Saber mais</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
           className="text-center mt-16"
         >
           <Button variant="hero" size="xl" asChild>

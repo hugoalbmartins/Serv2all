@@ -10,8 +10,8 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <Hero />
-      {/* Content wrapper with solid background to cover fixed hero */}
-      <div className="relative z-10 bg-background">
+      {/* Content wrapper - transparent to show fixed background */}
+      <div className="relative z-10">
         <Services />
         <Portfolio />
         <Contact />
