@@ -7,43 +7,44 @@ const Hero = () => {
   return (
     <section
       id="inicio"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background Image */}
+      {/* Fixed Background Image */}
       <div
-        className="absolute inset-0 z-0"
+        className="fixed inset-0 z-0"
         style={{
           backgroundImage: `url(${heroBackground})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          backgroundAttachment: "fixed",
         }}
       >
         <div className="absolute inset-0 bg-gradient-hero opacity-80" />
       </div>
 
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-grid opacity-30 z-0" />
+      <div className="fixed inset-0 bg-grid opacity-30 z-0" />
 
       {/* Floating Elements */}
       <motion.div
         animate={{ y: [0, -20, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-10 w-20 h-20 border border-primary/30 rounded-xl rotate-45 hidden lg:block"
+        className="fixed top-1/4 left-10 w-20 h-20 border border-primary/30 rounded-xl rotate-45 hidden lg:block z-0"
       />
       <motion.div
         animate={{ y: [0, 20, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-1/4 right-20 w-16 h-16 bg-gradient-primary opacity-20 rounded-lg hidden lg:block"
+        className="fixed bottom-1/4 right-20 w-16 h-16 bg-gradient-primary opacity-20 rounded-lg hidden lg:block z-0"
       />
 
       {/* Content */}
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 pt-20 min-h-screen flex flex-col justify-center">
         <div className="max-w-5xl mx-auto text-center">
           {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-8"
           >
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
@@ -52,9 +53,9 @@ const Hero = () => {
 
           {/* Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
             className="font-display text-4xl md:text-5xl lg:text-7xl font-bold leading-tight mb-6"
           >
             Websites & CRMs
@@ -64,9 +65,9 @@ const Hero = () => {
 
           {/* Subtitle */}
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
             className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10"
           >
             Baixos custos, alta performance e construções totalmente personalizadas. 
@@ -75,10 +76,10 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-12 md:mb-16"
           >
             <Button variant="hero" size="xl" asChild>
               <a href="#contactos" className="flex items-center gap-2">
@@ -91,35 +92,36 @@ const Hero = () => {
             </Button>
           </motion.div>
 
-          {/* Feature Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto"
-          >
+          {/* Feature Cards with Slide-in Animation */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto pb-8">
             {[
               {
                 icon: Code2,
                 title: "Websites à Medida",
                 description: "Design único e desenvolvimento personalizado",
+                delay: 0.4,
+                direction: -100,
               },
               {
                 icon: Zap,
                 title: "Alta Performance",
                 description: "Velocidade e otimização garantidas",
+                delay: 0.5,
+                direction: 0,
               },
               {
                 icon: Palette,
                 title: "Imagem Corporativa",
                 description: "Branding completo para a sua empresa",
+                delay: 0.6,
+                direction: 100,
               },
             ].map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
+                initial={{ opacity: 0, x: feature.direction, y: index === 1 ? 50 : 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ duration: 0.7, delay: feature.delay, ease: "easeOut" }}
                 className="glass p-6 rounded-xl hover-glow group"
               >
                 <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -129,7 +131,7 @@ const Hero = () => {
                 <p className="text-muted-foreground text-sm">{feature.description}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -138,7 +140,7 @@ const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
