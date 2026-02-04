@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, Mail } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoServ2all from "@/assets/logo-serv2all.png";
 
 const navLinks = [
   { name: "Início", href: "#inicio" },
@@ -41,9 +42,11 @@ const Header = () => {
             whileHover={{ scale: 1.02 }}
           >
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="font-display font-bold text-primary-foreground text-lg">S</span>
-              </div>
+              <img 
+                src={logoServ2all} 
+                alt="Serv2all Logo" 
+                className="w-10 h-10 rounded-lg object-cover"
+              />
               <div className="absolute -inset-1 bg-gradient-primary opacity-30 blur-lg rounded-lg" />
             </div>
             <span className="font-display font-bold text-xl">

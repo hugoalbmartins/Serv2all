@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Phone, Mail, ArrowUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import logoServ2all from "@/assets/logo-serv2all.png";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -23,9 +24,11 @@ const Footer = () => {
           {/* Logo & Info */}
           <div className="text-center md:text-left">
             <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="font-display font-bold text-primary-foreground text-lg">S</span>
-              </div>
+              <img 
+                src={logoServ2all} 
+                alt="Serv2all Logo" 
+                className="w-10 h-10 rounded-lg object-cover"
+              />
               <span className="font-display font-bold text-xl">
                 <span className="text-gradient">Serv</span>
                 <span className="text-foreground">2all</span>
