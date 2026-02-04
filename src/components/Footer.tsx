@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Phone, Mail, ArrowUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -64,13 +65,41 @@ const Footer = () => {
           </motion.button>
         </motion.div>
 
+        {/* Legal Links */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mt-8 pt-6 border-t border-border/30 flex flex-wrap justify-center gap-4 md:gap-8"
+        >
+          <Link 
+            to="/politica-cookies" 
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
+          >
+            Política de Cookies
+          </Link>
+          <Link 
+            to="/politica-privacidade" 
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
+          >
+            Política de Privacidade
+          </Link>
+          <Link 
+            to="/termos-uso" 
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
+          >
+            Termos de Uso
+          </Link>
+        </motion.div>
+
         {/* Copyright */}
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-12 pt-8 border-t border-border/30 text-center"
+          className="mt-6 text-center"
         >
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} Serv2all. Todos os direitos reservados.

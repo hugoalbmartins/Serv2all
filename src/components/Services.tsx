@@ -5,11 +5,8 @@ import {
   Globe, 
   Database, 
   Palette, 
-  Smartphone, 
-  Rocket, 
   Shield,
   ArrowRight,
-  X,
   Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,38 +66,6 @@ const services = [
       "Ficheiros em todos os formatos necessários"
     ],
     process: "Estudamos o seu mercado e concorrência, criamos conceitos visuais, refinamos com o seu feedback e entregamos todos os materiais prontos a usar."
-  },
-  {
-    icon: Smartphone,
-    title: "Aplicações Web",
-    description: "Desenvolvimento de aplicações web progressivas e dashboards interativos.",
-    features: ["PWA", "Dashboards", "Integração APIs"],
-    fullDescription: "Desenvolvemos aplicações web robustas que funcionam como apps nativas. Perfeitas para gestão interna, portais de clientes ou qualquer solução que precise de funcionalidades avançadas.",
-    benefits: [
-      "Funciona offline (PWA)",
-      "Instalável no telemóvel",
-      "Dashboards em tempo real",
-      "Integração com sistemas externos",
-      "Autenticação segura",
-      "Escalável para milhares de utilizadores"
-    ],
-    process: "Definimos os requisitos funcionais, criamos protótipos interativos, desenvolvemos em sprints ágeis e lançamos com suporte contínuo."
-  },
-  {
-    icon: Rocket,
-    title: "E-Commerce",
-    description: "Lojas online completas com gestão de produtos, pagamentos e stock.",
-    features: ["Gestão de Stock", "Pagamentos Online", "Analytics"],
-    fullDescription: "Criamos lojas online que vendem. Desde a apresentação dos produtos até ao checkout, otimizamos cada passo para maximizar as suas conversões e facilitar a gestão do negócio.",
-    benefits: [
-      "Checkout otimizado para conversão",
-      "Múltiplos métodos de pagamento",
-      "Gestão de stock automatizada",
-      "Cálculo automático de portes",
-      "Integração com marketplaces",
-      "Relatórios de vendas detalhados"
-    ],
-    process: "Configuramos a loja com os seus produtos, integramos pagamentos e logística, e fornecemos formação para gerir tudo autonomamente."
   },
   {
     icon: Shield,
