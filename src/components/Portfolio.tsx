@@ -19,7 +19,7 @@ const projects = [
     description: "Website profissional para empresa de lacagem, restauro e carpintaria com mais de 30 anos de experiência.",
     category: "Website Institucional",
     testimonial: {
-      author: "Carlos Costa",
+      author: "Carlos Cardoso",
       role: "Proprietário",
       content: "A Serv2all transformou a nossa presença online por completo. O website ficou moderno, profissional e os nossos clientes adoram! O serviço foi impecável do início ao fim. Recomendo a 100%!",
       rating: 5,
@@ -33,7 +33,7 @@ const projects = [
     description: "Plataforma digital completa para empresa de telecomunicações e energia com 20 anos de experiência no mercado.",
     category: "Website Empresarial",
     testimonial: {
-      author: "Manuel Pereira",
+      author: "Marcio Pinto",
       role: "Diretor Geral",
       content: "20 anos de experiência mereciam um site à altura. A equipa da Serv2all entendeu perfeitamente a nossa visão e entregou um resultado que superou todas as expectativas. Parceiros de confiança!",
       rating: 5,
@@ -44,7 +44,7 @@ const projects = [
     name: "Ask Fernando",
     url: "https://askfernando.pt",
     image: portfolioAskFernando,
-    description: "Website bilingue para consultoria de serviços a expatriados em Portugal, com foco em utilidades e seguros.",
+    description: "Website multilingue para consultoria de serviços a emigrantes que vêm viver em Portugal, com foco em telecomunicações, energias e seguros.",
     category: "Website de Serviços",
     testimonial: {
       author: "Fernando Mendes",
