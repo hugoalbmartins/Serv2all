@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# Serv2all - Websites e CRMs Personalizados
 
-## Project info
+Desenvolvimento profissional de websites e CRMs à medida, com baixos custos e alta qualidade.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Sobre o Projeto
 
-## How can I edit this code?
+Este é o website institucional da Serv2all, uma empresa especializada em desenvolvimento de websites e sistemas CRM personalizados.
 
-There are several ways of editing your application.
+## Tecnologias Utilizadas
 
-**Use Lovable**
+Este projeto é construído com:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **Vite** - Build tool rápido e moderno
+- **TypeScript** - Tipagem estática para JavaScript
+- **React** - Biblioteca de interface de usuário
+- **shadcn/ui** - Componentes UI de alta qualidade
+- **Tailwind CSS** - Framework CSS utility-first
+- **Framer Motion** - Animações fluidas
+- **Supabase** - Backend e base de dados
 
-Changes made via Lovable will be committed automatically to this repo.
+## Como Começar
 
-**Use your preferred IDE**
+### Pré-requisitos
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (v18 ou superior)
+- npm ou yarn
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Instalação
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone o repositório
+git clone <seu_repositorio_git>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navegue para o diretório do projeto
+cd projeto
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Instale as dependências
+npm install
 ```
 
-**Edit a file directly in GitHub**
+### Desenvolvimento
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+# Inicie o servidor de desenvolvimento
+npm run dev
 
-**Use GitHub Codespaces**
+# O site estará disponível em http://localhost:8080
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Build
 
-## What technologies are used for this project?
+```sh
+# Crie um build otimizado para produção
+npm run build
 
-This project is built with:
+# Visualize o build em produção localmente
+npm run preview
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Testes
 
-## How can I deploy this project?
+```sh
+# Execute os testes
+npm run test
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+# Execute os testes em modo watch
+npm run test:watch
+```
 
-## Can I connect a custom domain to my Lovable project?
+## Estrutura do Projeto
 
-Yes, you can!
+- `/src` - Código-fonte da aplicação
+  - `/components` - Componentes React reutilizáveis
+  - `/pages` - Páginas da aplicação
+  - `/assets` - Imagens e recursos
+  - `/lib` - Funções utilitárias
+  - `/hooks` - React hooks customizados
+- `/public` - Arquivos estáticos
+- `/supabase` - Configurações e funções do Supabase
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Deploy
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+O projeto está configurado para ser facilmente deployado em plataformas como:
+
+- Vercel
+- Netlify
+- Supabase Hosting
+
+## Contato
+
+Para mais informações, visite:
+- Website: https://serv2all.pt
+- Email: info@serv2all.pt
+- Telefone: 966 622 017
+
+## Licença
+
+© 2025 Serv2all. Todos os direitos reservados.
