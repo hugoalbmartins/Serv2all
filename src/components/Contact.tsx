@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Phone, Mail, MapPin, Send, CheckCircle } from "lucide-react";
+import { Phone, Mail, Send, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,21 +18,60 @@ const contactInfo = [
     value: "info@serv2all.pt",
     href: "mailto:info@serv2all.pt",
   },
-  {
-    icon: MapPin,
-    label: "Localização",
-    value: "Portugal",
-    href: null,
-  },
 ];
 
 const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    projectType: "",
+    message: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          projectType: "",
+          message: "",
+        });
+        setTimeout(() => setIsSubmitted(false), 3000);
+      }
+    } catch (error) {
+      console.error("Erro ao enviar formulário:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -139,7 +178,10 @@ const Contact = () => {
                     <label className="text-sm text-muted-foreground mb-2 block">Nome</label>
                     <Input
                       type="text"
+                      name="name"
                       placeholder="O seu nome"
+                      value={formData.name}
+                      onChange={handleChange}
                       required
                       className="bg-muted/50 border-border/50 focus:border-primary"
                     />
@@ -148,7 +190,10 @@ const Contact = () => {
                     <label className="text-sm text-muted-foreground mb-2 block">Email</label>
                     <Input
                       type="email"
+                      name="email"
                       placeholder="email@exemplo.pt"
+                      value={formData.email}
+                      onChange={handleChange}
                       required
                       className="bg-muted/50 border-border/50 focus:border-primary"
                     />
@@ -159,14 +204,20 @@ const Contact = () => {
                   <label className="text-sm text-muted-foreground mb-2 block">Telefone</label>
                   <Input
                     type="tel"
+                    name="phone"
                     placeholder="O seu número"
+                    value={formData.phone}
+                    onChange={handleChange}
                     className="bg-muted/50 border-border/50 focus:border-primary"
                   />
                 </div>
 
                 <div>
                   <label className="text-sm text-muted-foreground mb-2 block">Tipo de Projeto</label>
-                  <select 
+                  <select
+                    name="projectType"
+                    value={formData.projectType}
+                    onChange={handleChange}
                     className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border/50 text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     required
                   >
@@ -182,8 +233,11 @@ const Contact = () => {
                 <div>
                   <label className="text-sm text-muted-foreground mb-2 block">Mensagem</label>
                   <Textarea
+                    name="message"
                     placeholder="Descreva o seu projeto..."
                     rows={4}
+                    value={formData.message}
+                    onChange={handleChange}
                     required
                     className="bg-muted/50 border-border/50 focus:border-primary resize-none"
                   />
@@ -194,12 +248,17 @@ const Contact = () => {
                   variant="hero"
                   size="xl"
                   className="w-full"
-                  disabled={isSubmitted}
+                  disabled={isSubmitted || isLoading}
                 >
                   {isSubmitted ? (
                     <>
                       <CheckCircle className="w-5 h-5" />
                       Enviado com Sucesso!
+                    </>
+                  ) : isLoading ? (
+                    <>
+                      <span className="animate-spin">⏳</span>
+                      Enviando...
                     </>
                   ) : (
                     <>
