@@ -48,8 +48,8 @@ const projects = [
     category: "Website de Serviços",
     testimonial: {
       author: "Fernando Mendes",
-      role: "Fundador",
-      content: "Trabalhar com a Serv2all foi uma experiência excelente. Profissionais dedicados, prazos cumpridos e um resultado final que transmite exatamente a confiança que quero passar aos meus clientes.",
+      role: "CEO",
+      content: "Após ter dado o desafio á Serv2all de fazer um \"face lifting\" ao meu site, não podia estar mais satisfeito com o resultado. Para além de transformar o site e cortar metade da informação que estava a mais, conseguiu fazer mais com menos. Os clientes não parem de elogiar e já noto no trafego do site e nas visualizações. Trabalhar com alguém assim como ele foi a melhor decisão que tomei sem pagar uma fortuna!",
       rating: 5,
     },
     features: ["Multilingue", "Estatísticas Dinâmicas", "Design Escuro", "Mobile First"],
