@@ -44,31 +44,41 @@ const Contact = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      if (response.ok) {
-        setIsSubmitted(true);
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          projectType: "",
-          message: "",
-        });
-        setTimeout(() => setIsSubmitted(false), 3000);
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error("Variáveis de ambiente do Supabase não configuradas");
       }
+
+      const url = `${supabaseUrl}/functions/v1/send-contact-email`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorData}`);
+      }
+
+      setIsSubmitted(true);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        projectType: "",
+        message: "",
+      });
+      setTimeout(() => setIsSubmitted(false), 3000);
     } catch (error) {
       console.error("Erro ao enviar formulário:", error);
+      alert("Erro ao enviar mensagem. Por favor, tente novamente.");
     } finally {
       setIsLoading(false);
     }

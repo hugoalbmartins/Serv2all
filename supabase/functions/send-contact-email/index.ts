@@ -25,17 +25,43 @@ Deno.serve(async (req: Request) => {
   try {
     const data: ContactFormData = await req.json();
 
-    const smtpHost = Deno.env.get("SMTP_HOST") || "";
-    const smtpPort = parseInt(Deno.env.get("SMTP_PORT") || "465");
-    const smtpUser = Deno.env.get("SMTP_USER") || "";
-    const smtpPassword = Deno.env.get("SMTP_PASSWORD") || "";
-    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL") || "";
-    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL") || "";
+    const smtpHost = Deno.env.get("SMTP_HOST");
+    const smtpPort = Deno.env.get("SMTP_PORT");
+    const smtpUser = Deno.env.get("SMTP_USER");
+    const smtpPassword = Deno.env.get("SMTP_PASSWORD");
+    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL");
+    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL");
+    const brevoKey = Deno.env.get("BREVO_API_KEY");
     const ccEmail = data.email;
 
+    console.log("SMTP Config check:", {
+      hasHost: !!smtpHost,
+      hasPort: !!smtpPort,
+      hasUser: !!smtpUser,
+      hasPassword: !!smtpPassword,
+      hasFromEmail: !!fromEmail,
+      hasToEmail: !!toEmail,
+      hasBrevoKey: !!brevoKey,
+    });
+
     if (!smtpHost || !smtpUser || !smtpPassword || !fromEmail || !toEmail) {
-      throw new Error("Variáveis de ambiente SMTP não configuradas");
+      if (!brevoKey) {
+        return new Response(
+          JSON.stringify({
+            error: "Variáveis de ambiente não configuradas. Configure SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_FROM_EMAIL, CONTACT_RECIPIENT_EMAIL ou BREVO_API_KEY.",
+          }),
+          {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
     }
+
+    const smtpPortNum = smtpPort ? parseInt(smtpPort) : 465;
 
     const subject = `Nova Solicitação de Orçamento - ${data.name}`;
 
@@ -80,12 +106,12 @@ Este email foi enviado automaticamente pelo formulário de contacto do website S
     `;
 
     await sendEmail(
-      smtpHost,
-      smtpPort,
-      smtpUser,
-      smtpPassword,
-      fromEmail,
-      toEmail,
+      smtpHost!,
+      smtpPortNum,
+      smtpUser!,
+      smtpPassword!,
+      fromEmail!,
+      toEmail!,
       ccEmail,
       subject,
       htmlContent,
