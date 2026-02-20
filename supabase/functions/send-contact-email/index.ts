@@ -25,13 +25,17 @@ Deno.serve(async (req: Request) => {
   try {
     const data: ContactFormData = await req.json();
 
-    const smtpHost = "cpanel75.dnscpanel.com";
-    const smtpPort = 465;
-    const smtpUser = "info@serv2all.pt";
-    const smtpPassword = "1408983Hm*";
-    const fromEmail = "info@serv2all.pt";
-    const toEmail = "info@serv2all.pt";
+    const smtpHost = Deno.env.get("SMTP_HOST") || "";
+    const smtpPort = parseInt(Deno.env.get("SMTP_PORT") || "465");
+    const smtpUser = Deno.env.get("SMTP_USER") || "";
+    const smtpPassword = Deno.env.get("SMTP_PASSWORD") || "";
+    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL") || "";
+    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL") || "";
     const ccEmail = data.email;
+
+    if (!smtpHost || !smtpUser || !smtpPassword || !fromEmail || !toEmail) {
+      throw new Error("Variáveis de ambiente SMTP não configuradas");
+    }
 
     const subject = `Nova Solicitação de Orçamento - ${data.name}`;
 
