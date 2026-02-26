@@ -4,7 +4,6 @@ import { Phone, Mail, Send, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/lib/supabase";
 
 const contactInfo = [
   {
@@ -45,40 +44,24 @@ const Contact = () => {
     setIsLoading(true);
 
     try {
-      const contactData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
-        project_type: formData.projectType,
-        message: formData.message,
-      };
-
-      const { data: insertedData, error: insertError } = await supabase
-        .from('contacts')
-        .insert([contactData])
-        .select()
-        .maybeSingle();
-
-      if (insertError) {
-        throw new Error(`Erro ao guardar contacto: ${insertError.message}`);
-      }
-
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      if (supabaseUrl && supabaseKey) {
-        try {
-          await fetch(`${supabaseUrl}/functions/v1/send-contact-email`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${supabaseKey}`,
-            },
-            body: JSON.stringify(formData),
-          });
-        } catch (emailError) {
-          console.warn("Email não enviado, mas contacto foi guardado:", emailError);
-        }
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error("Configuração do servidor não encontrada");
+      }
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-contact-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao enviar mensagem");
       }
 
       setIsSubmitted(true);
