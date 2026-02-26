@@ -2,15 +2,14 @@
 
 ## 1. Configurar Secrets da Edge Function
 
-A Edge Function já foi deployada com sucesso, mas precisa configurar as variáveis de ambiente SMTP.
+A Edge Function já foi deployada com sucesso no Supabase e está ATIVA.
 
 ### Aceder ao Dashboard do Supabase
 
-1. Vá para https://supabase.com/dashboard
-2. Selecione o projeto: **0ec90b57d6e95fcbda19832f**
-3. No menu lateral, clique em **Edge Functions**
-4. Clique na função **send-contact-email**
-5. Vá para a aba **Settings** ou **Secrets**
+1. Vá para https://supabase.com/dashboard/project/0ec90b57d6e95fcbda19832f
+2. No menu lateral, clique em **Edge Functions**
+3. Clique na função **send-contact-email**
+4. Vá para a aba **Settings** ou **Secrets**
 
 ### Adicionar os Secrets
 
