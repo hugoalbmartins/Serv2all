@@ -4,6 +4,7 @@ import { Phone, Mail, Send, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/lib/supabase";
 
 const contactInfo = [
   {
@@ -44,27 +45,40 @@ const Contact = () => {
     setIsLoading(true);
 
     try {
+      const contactData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        project_type: formData.projectType,
+        message: formData.message,
+      };
+
+      const { data: insertedData, error: insertError } = await supabase
+        .from('contacts')
+        .insert([contactData])
+        .select()
+        .maybeSingle();
+
+      if (insertError) {
+        throw new Error(`Erro ao guardar contacto: ${insertError.message}`);
+      }
+
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      if (!supabaseUrl || !supabaseKey) {
-        throw new Error("Variáveis de ambiente do Supabase não configuradas");
-      }
-
-      const url = `${supabaseUrl}/functions/v1/send-contact-email`;
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Erro ${response.status}: ${errorData}`);
+      if (supabaseUrl && supabaseKey) {
+        try {
+          await fetch(`${supabaseUrl}/functions/v1/send-contact-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${supabaseKey}`,
+            },
+            body: JSON.stringify(formData),
+          });
+        } catch (emailError) {
+          console.warn("Email não enviado, mas contacto foi guardado:", emailError);
+        }
       }
 
       setIsSubmitted(true);
@@ -75,10 +89,10 @@ const Contact = () => {
         projectType: "",
         message: "",
       });
-      setTimeout(() => setIsSubmitted(false), 3000);
+      setTimeout(() => setIsSubmitted(false), 5000);
     } catch (error) {
       console.error("Erro ao enviar formulário:", error);
-      alert("Erro ao enviar mensagem. Por favor, tente novamente.");
+      alert("Erro ao enviar mensagem. Por favor, tente novamente ou contacte-nos por telefone.");
     } finally {
       setIsLoading(false);
     }
