@@ -7,6 +7,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+const CORRECT_PROJECT_ID = '0ec90b57d6e95fcbda19832f';
+if (!supabaseUrl.includes(CORRECT_PROJECT_ID)) {
+  console.error('ERRO CRÍTICO: URL do Supabase incorreto!');
+  console.error(`Esperado: https://${CORRECT_PROJECT_ID}.supabase.co`);
+  console.error(`Recebido: ${supabaseUrl}`);
+  throw new Error(`URL do Supabase incorreto. Verifique o ficheiro .env e as variáveis de ambiente na Vercel.`);
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface Contact {
