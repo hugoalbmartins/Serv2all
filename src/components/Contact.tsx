@@ -237,7 +237,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm text-muted-foreground mb-2 block">Tipo de Projeto</label>
+                  <label className="text-sm text-muted-foreground mb-2 block">Serviço</label>
                   <select
                     name="projectType"
                     value={formData.projectType}
@@ -245,12 +245,11 @@ const Contact = () => {
                     className="w-full h-10 px-3 rounded-lg bg-muted/50 border border-border/50 text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     required
                   >
-                    <option value="">Selecione uma opção</option>
-                    <option value="website">Website</option>
-                    <option value="crm">CRM</option>
-                    <option value="ecommerce">E-Commerce</option>
-                    <option value="branding">Imagem Corporativa</option>
-                    <option value="outro">Outro</option>
+                    <option value="">Selecione um serviço</option>
+                    <option value="Websites Profissionais">Websites Profissionais</option>
+                    <option value="CRMs Personalizados">CRMs Personalizados</option>
+                    <option value="Imagem Corporativa">Imagem Corporativa</option>
+                    <option value="Manutenção & Suporte">Manutenção & Suporte</option>
                   </select>
                 </div>
 

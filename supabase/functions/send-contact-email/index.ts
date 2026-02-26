@@ -63,19 +63,19 @@ Deno.serve(async (req: Request) => {
 
     const smtpPortNum = smtpPort ? parseInt(smtpPort) : 465;
 
-    const subject = `Nova Solicitação de Orçamento - ${data.name}`;
+    const subject = `Novo Pedido de Contacto - ${data.name}`;
 
     const htmlContent = `
       <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #2563eb;">Nova Solicitação de Orçamento</h2>
+            <h2 style="color: #2563eb;">Novo Pedido de Contacto</h2>
 
             <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <p><strong>Nome:</strong> ${escapeHtml(data.name)}</p>
               <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
-              <p><strong>Telefone:</strong> ${escapeHtml(data.phone || "Não fornecido")}</p>
-              <p><strong>Tipo de Projeto:</strong> ${escapeHtml(data.projectType)}</p>
+              <p><strong>Contacto:</strong> ${escapeHtml(data.phone || "Não fornecido")}</p>
+              <p><strong>Serviço:</strong> ${escapeHtml(data.projectType)}</p>
             </div>
 
             <div style="margin: 20px 0;">
@@ -91,12 +91,12 @@ Deno.serve(async (req: Request) => {
     `;
 
     const textContent = `
-Nova Solicitação de Orçamento
+Novo Pedido de Contacto
 
 Nome: ${data.name}
 Email: ${data.email}
-Telefone: ${data.phone || "Não fornecido"}
-Tipo de Projeto: ${data.projectType}
+Contacto: ${data.phone || "Não fornecido"}
+Serviço: ${data.projectType}
 
 Mensagem:
 ${data.message}
