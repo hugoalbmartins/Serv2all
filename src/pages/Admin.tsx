@@ -132,19 +132,18 @@ export default function Admin() {
           </div>
         </div>
 
-        <Card className="mb-6 border-orange-200 bg-orange-50">
+        <Card className="mb-6 border-blue-200 bg-blue-50">
           <CardHeader>
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-orange-600 mt-1" />
+              <AlertCircle className="w-5 h-5 text-blue-600 mt-1" />
               <div>
-                <CardTitle className="text-orange-900">Verificar Configuração de Email</CardTitle>
-                <CardDescription className="text-orange-700 mt-2">
-                  Se os emails não estão a chegar, verifique:
+                <CardTitle className="text-blue-900">Informação sobre Email</CardTitle>
+                <CardDescription className="text-blue-700 mt-2">
+                  Os emails são enviados via SMTP diretamente para info@serv2all.pt
                   <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>Pasta de spam/lixo em info@serv2all.pt</li>
-                    <li>API Key do Brevo está correta no Supabase</li>
-                    <li>Email de remetente está verificado no Brevo</li>
+                    <li>Verifique a pasta de spam/lixo caso não encontre o email</li>
                     <li>Use o botão "Testar Email" para enviar um email de teste</li>
+                    <li>Todos os contactos são sempre guardados na base de dados</li>
                   </ul>
                 </CardDescription>
               </div>

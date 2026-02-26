@@ -50,23 +50,28 @@ Deno.serve(async (req: Request) => {
 
     console.log("Contacto guardado com sucesso na base de dados");
 
-    const brevoKey = Deno.env.get("BREVO_API_KEY");
+    const smtpHost = Deno.env.get("SMTP_HOST");
+    const smtpPort = Deno.env.get("SMTP_PORT");
+    const smtpUser = Deno.env.get("SMTP_USER");
+    const smtpPassword = Deno.env.get("SMTP_PASSWORD");
     const fromEmail = Deno.env.get("SMTP_FROM_EMAIL");
     const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL");
 
-    console.log("Configuração de email:", {
-      hasBrevoKey: !!brevoKey,
-      brevoKeyLength: brevoKey?.length || 0,
+    console.log("Configuração SMTP:", {
+      host: smtpHost || "não configurado",
+      port: smtpPort || "não configurado",
+      user: smtpUser || "não configurado",
+      hasPassword: !!smtpPassword,
       fromEmail: fromEmail || "não configurado",
       toEmail: toEmail || "não configurado"
     });
 
-    if (!brevoKey || brevoKey.trim() === "") {
-      console.warn("BREVO_API_KEY não configurada - emails não serão enviados");
+    if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword) {
+      console.warn("Configuração SMTP incompleta - email não será enviado");
       return new Response(
         JSON.stringify({
           success: true,
-          message: "Mensagem recebida com sucesso! (Email não enviado - API key não configurada)"
+          message: "Mensagem recebida com sucesso! (Email não enviado - SMTP não configurado)"
         }),
         {
           status: 200,
@@ -121,57 +126,91 @@ ${data.message}
 Este email foi enviado automaticamente pelo formulário de contacto do website Serv2all.
       `;
 
-      const emailPayload = {
-        sender: {
-          name: "Serv2all Website",
-          email: fromEmail || "noreply@serv2all.pt"
-        },
-        to: [{ email: toEmail || "info@serv2all.pt" }],
-        cc: [{ email: data.email }],
-        subject: subject,
-        htmlContent: htmlContent,
-        textContent: textContent,
+      const emailMessage = [
+        `From: Serv2all Website <${fromEmail || "noreply@serv2all.pt"}>`,
+        `To: <${toEmail || "info@serv2all.pt"}>`,
+        `Cc: <${data.email}>`,
+        `Reply-To: ${data.email}`,
+        `Subject: ${subject}`,
+        `MIME-Version: 1.0`,
+        `Content-Type: multipart/alternative; boundary="boundary123"`,
+        ``,
+        `--boundary123`,
+        `Content-Type: text/plain; charset=utf-8`,
+        ``,
+        textContent,
+        `--boundary123`,
+        `Content-Type: text/html; charset=utf-8`,
+        ``,
+        htmlContent,
+        `--boundary123--`
+      ].join("\r\n");
+
+      console.log("Conectando ao servidor SMTP...");
+
+      const conn = await Deno.connect({
+        hostname: smtpHost,
+        port: parseInt(smtpPort),
+      });
+
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+
+      const reader = conn.readable.getReader();
+      const writer = conn.writable.getWriter();
+
+      const readResponse = async () => {
+        const { value } = await reader.read();
+        const response = decoder.decode(value);
+        console.log("SMTP:", response.trim());
+        return response;
       };
 
-      console.log("Enviando email via Brevo para:", toEmail || "info@serv2all.pt");
+      const sendCommand = async (command: string) => {
+        console.log("Enviando:", command.split("\n")[0]);
+        await writer.write(encoder.encode(command + "\r\n"));
+        return await readResponse();
+      };
 
-      const emailResponse = await fetch(
-        "https://api.brevo.com/v3/smtp/email",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "api-key": brevoKey,
-          },
-          body: JSON.stringify(emailPayload),
-        }
-      );
+      await readResponse();
 
-      const responseText = await emailResponse.text();
+      await sendCommand(`EHLO ${smtpHost}`);
 
-      if (!emailResponse.ok) {
-        console.error("Erro ao enviar email via Brevo:", {
-          status: emailResponse.status,
-          statusText: emailResponse.statusText,
-          response: responseText
-        });
+      await sendCommand("STARTTLS");
 
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: "Mensagem recebida com sucesso! (Erro ao enviar email - verifique logs)"
-          }),
-          {
-            status: 200,
-            headers: {
-              ...corsHeaders,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      }
+      const tlsConn = await Deno.startTls(conn, { hostname: smtpHost });
+      const tlsReader = tlsConn.readable.getReader();
+      const tlsWriter = tlsConn.writable.getWriter();
 
-      console.log("Email enviado com sucesso via Brevo:", responseText);
+      const tlsReadResponse = async () => {
+        const { value } = await tlsReader.read();
+        const response = decoder.decode(value);
+        console.log("SMTP TLS:", response.trim());
+        return response;
+      };
+
+      const tlsSendCommand = async (command: string) => {
+        console.log("Enviando:", command.includes("AUTH PLAIN") ? "AUTH PLAIN [credentials]" : command.split("\n")[0]);
+        await tlsWriter.write(encoder.encode(command + "\r\n"));
+        return await tlsReadResponse();
+      };
+
+      await tlsSendCommand(`EHLO ${smtpHost}`);
+
+      const auth = btoa(`\0${smtpUser}\0${smtpPassword}`);
+      await tlsSendCommand(`AUTH PLAIN ${auth}`);
+
+      await tlsSendCommand(`MAIL FROM:<${fromEmail || "noreply@serv2all.pt"}>`);
+      await tlsSendCommand(`RCPT TO:<${toEmail || "info@serv2all.pt"}>`);
+      await tlsSendCommand(`RCPT TO:<${data.email}>`);
+      await tlsSendCommand("DATA");
+      await tlsSendCommand(emailMessage + "\r\n.");
+
+      await tlsSendCommand("QUIT");
+
+      tlsConn.close();
+
+      console.log("Email enviado com sucesso via SMTP");
 
       return new Response(
         JSON.stringify({
@@ -192,7 +231,8 @@ Este email foi enviado automaticamente pelo formulário de contacto do website S
       return new Response(
         JSON.stringify({
           success: true,
-          message: "Mensagem recebida com sucesso! (Erro ao enviar email - verifique logs)"
+          message: "Mensagem recebida com sucesso! (Erro ao enviar email - verifique logs)",
+          error: emailError instanceof Error ? emailError.message : "Erro desconhecido"
         }),
         {
           status: 200,
