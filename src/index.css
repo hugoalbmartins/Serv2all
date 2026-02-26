@@ -72,9 +72,18 @@
     @apply border-border;
   }
 
-  body {
+  html, body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   h1, h2, h3, h4, h5, h6 {

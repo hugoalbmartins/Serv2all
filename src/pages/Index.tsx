@@ -7,11 +7,10 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
       <Hero />
-      {/* Content wrapper - transparent to show fixed background */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1">
         <Services />
         <Portfolio />
         <Contact />

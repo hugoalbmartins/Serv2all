@@ -20,10 +20,52 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" href="/favicon-64.png" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0a0f1e;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      .app-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #0a0f1e;
+        color: #22d3ee;
+        font-family: Arial, sans-serif;
+      }
+      .app-loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(34, 211, 238, 0.2);
+        border-top-color: #22d3ee;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-loading">
+        <div class="app-loading-spinner"></div>
+      </div>
+      <noscript>
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0a0f1e; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+          <div>
+            <h1>JavaScript Necessário</h1>
+            <p>Por favor, ative o JavaScript no seu navegador para visualizar este site.</p>
+          </div>
+        </div>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
