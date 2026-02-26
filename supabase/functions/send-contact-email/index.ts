@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,16 +55,16 @@ Deno.serve(async (req: Request) => {
     const smtpPort = Deno.env.get("SMTP_PORT");
     const smtpUser = Deno.env.get("SMTP_USER");
     const smtpPassword = Deno.env.get("SMTP_PASSWORD");
-    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL");
-    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL");
+    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL") || "noreply@serv2all.pt";
+    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL") || "info@serv2all.pt";
 
     console.log("Configuração SMTP:", {
       host: smtpHost || "não configurado",
       port: smtpPort || "não configurado",
       user: smtpUser || "não configurado",
       hasPassword: !!smtpPassword,
-      fromEmail: fromEmail || "não configurado",
-      toEmail: toEmail || "não configurado"
+      fromEmail,
+      toEmail
     });
 
     if (!smtpHost || !smtpPort || !smtpUser || !smtpPassword) {
@@ -71,7 +72,7 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({
           success: true,
-          message: "Mensagem recebida com sucesso! (Email não enviado - SMTP não configurado)"
+          message: "Mensagem recebida com sucesso!"
         }),
         {
           status: 200,
@@ -84,6 +85,18 @@ Deno.serve(async (req: Request) => {
     }
 
     try {
+      const client = new SMTPClient({
+        connection: {
+          hostname: smtpHost,
+          port: parseInt(smtpPort),
+          tls: true,
+          auth: {
+            username: smtpUser,
+            password: smtpPassword,
+          },
+        },
+      });
+
       const subject = `Novo Pedido de Contacto - ${data.name}`;
 
       const htmlContent = `
@@ -111,104 +124,19 @@ Deno.serve(async (req: Request) => {
         </html>
       `;
 
-      const textContent = `
-Novo Pedido de Contacto
+      console.log("Enviando email via SMTP...");
 
-Nome: ${data.name}
-Email: ${data.email}
-Contacto: ${data.phone || "Não fornecido"}
-Serviço: ${data.projectType}
-
-Mensagem:
-${data.message}
-
----
-Este email foi enviado automaticamente pelo formulário de contacto do website Serv2all.
-      `;
-
-      const emailMessage = [
-        `From: Serv2all Website <${fromEmail || "noreply@serv2all.pt"}>`,
-        `To: <${toEmail || "info@serv2all.pt"}>`,
-        `Cc: <${data.email}>`,
-        `Reply-To: ${data.email}`,
-        `Subject: ${subject}`,
-        `MIME-Version: 1.0`,
-        `Content-Type: multipart/alternative; boundary="boundary123"`,
-        ``,
-        `--boundary123`,
-        `Content-Type: text/plain; charset=utf-8`,
-        ``,
-        textContent,
-        `--boundary123`,
-        `Content-Type: text/html; charset=utf-8`,
-        ``,
-        htmlContent,
-        `--boundary123--`
-      ].join("\r\n");
-
-      console.log("Conectando ao servidor SMTP...");
-
-      const conn = await Deno.connect({
-        hostname: smtpHost,
-        port: parseInt(smtpPort),
+      await client.send({
+        from: fromEmail,
+        to: toEmail,
+        cc: data.email,
+        replyTo: data.email,
+        subject: subject,
+        content: htmlContent,
+        html: htmlContent,
       });
 
-      const encoder = new TextEncoder();
-      const decoder = new TextDecoder();
-
-      const reader = conn.readable.getReader();
-      const writer = conn.writable.getWriter();
-
-      const readResponse = async () => {
-        const { value } = await reader.read();
-        const response = decoder.decode(value);
-        console.log("SMTP:", response.trim());
-        return response;
-      };
-
-      const sendCommand = async (command: string) => {
-        console.log("Enviando:", command.split("\n")[0]);
-        await writer.write(encoder.encode(command + "\r\n"));
-        return await readResponse();
-      };
-
-      await readResponse();
-
-      await sendCommand(`EHLO ${smtpHost}`);
-
-      await sendCommand("STARTTLS");
-
-      const tlsConn = await Deno.startTls(conn, { hostname: smtpHost });
-      const tlsReader = tlsConn.readable.getReader();
-      const tlsWriter = tlsConn.writable.getWriter();
-
-      const tlsReadResponse = async () => {
-        const { value } = await tlsReader.read();
-        const response = decoder.decode(value);
-        console.log("SMTP TLS:", response.trim());
-        return response;
-      };
-
-      const tlsSendCommand = async (command: string) => {
-        console.log("Enviando:", command.includes("AUTH PLAIN") ? "AUTH PLAIN [credentials]" : command.split("\n")[0]);
-        await tlsWriter.write(encoder.encode(command + "\r\n"));
-        return await tlsReadResponse();
-      };
-
-      await tlsSendCommand(`EHLO ${smtpHost}`);
-
-      const auth = btoa(`\0${smtpUser}\0${smtpPassword}`);
-      await tlsSendCommand(`AUTH PLAIN ${auth}`);
-
-      await tlsSendCommand(`MAIL FROM:<${fromEmail || "noreply@serv2all.pt"}>`);
-      await tlsSendCommand(`RCPT TO:<${toEmail || "info@serv2all.pt"}>`);
-      await tlsSendCommand(`RCPT TO:<${data.email}>`);
-      await tlsSendCommand("DATA");
-      await tlsSendCommand(emailMessage + "\r\n.");
-
-      await tlsSendCommand("QUIT");
-
-      tlsConn.close();
+      await client.close();
 
       console.log("Email enviado com sucesso via SMTP");
 
@@ -231,8 +159,8 @@ Este email foi enviado automaticamente pelo formulário de contacto do website S
       return new Response(
         JSON.stringify({
           success: true,
-          message: "Mensagem recebida com sucesso! (Erro ao enviar email - verifique logs)",
-          error: emailError instanceof Error ? emailError.message : "Erro desconhecido"
+          message: "Mensagem recebida com sucesso!",
+          warning: "Email não foi enviado - verifique configuração SMTP"
         }),
         {
           status: 200,
