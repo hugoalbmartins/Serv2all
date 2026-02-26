@@ -26,6 +26,8 @@ Deno.serve(async (req: Request) => {
   try {
     const data: ContactFormData = await req.json();
 
+    console.log("Recebido pedido de contacto:", { name: data.name, email: data.email });
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -46,40 +48,65 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Erro ao guardar contacto: ${insertError.message}`);
     }
 
+    console.log("Contacto guardado com sucesso na base de dados");
+
     const brevoKey = Deno.env.get("BREVO_API_KEY");
-    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL") || "noreply@serv2all.pt";
-    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL") || "info@serv2all.pt";
+    const fromEmail = Deno.env.get("SMTP_FROM_EMAIL");
+    const toEmail = Deno.env.get("CONTACT_RECIPIENT_EMAIL");
 
-    if (brevoKey) {
-      try {
-        const subject = `Novo Pedido de Contacto - ${data.name}`;
+    console.log("Configuração de email:", {
+      hasBrevoKey: !!brevoKey,
+      brevoKeyLength: brevoKey?.length || 0,
+      fromEmail: fromEmail || "não configurado",
+      toEmail: toEmail || "não configurado"
+    });
 
-        const htmlContent = `
-          <html>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-              <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #2563eb;">Novo Pedido de Contacto</h2>
+    if (!brevoKey || brevoKey.trim() === "") {
+      console.warn("BREVO_API_KEY não configurada - emails não serão enviados");
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Mensagem recebida com sucesso! (Email não enviado - API key não configurada)"
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
-                <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                  <p><strong>Nome:</strong> ${escapeHtml(data.name)}</p>
-                  <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
-                  <p><strong>Contacto:</strong> ${escapeHtml(data.phone || "Não fornecido")}</p>
-                  <p><strong>Serviço:</strong> ${escapeHtml(data.projectType)}</p>
-                </div>
+    try {
+      const subject = `Novo Pedido de Contacto - ${data.name}`;
 
-                <div style="margin: 20px 0;">
-                  <h3>Mensagem:</h3>
-                  <p style="white-space: pre-wrap;">${escapeHtml(data.message)}</p>
-                </div>
+      const htmlContent = `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #2563eb;">Novo Pedido de Contacto</h2>
 
-                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-                <p style="color: #999; font-size: 12px;">Este email foi enviado automaticamente pelo formulário de contacto do website Serv2all.</p>
+              <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Nome:</strong> ${escapeHtml(data.name)}</p>
+                <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
+                <p><strong>Contacto:</strong> ${escapeHtml(data.phone || "Não fornecido")}</p>
+                <p><strong>Serviço:</strong> ${escapeHtml(data.projectType)}</p>
               </div>
-            </body>
-          </html>
-        `;
 
-        const textContent = `
+              <div style="margin: 20px 0;">
+                <h3>Mensagem:</h3>
+                <p style="white-space: pre-wrap;">${escapeHtml(data.message)}</p>
+              </div>
+
+              <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+              <p style="color: #999; font-size: 12px;">Este email foi enviado automaticamente pelo formulário de contacto do website Serv2all.</p>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const textContent = `
 Novo Pedido de Contacto
 
 Nome: ${data.name}
@@ -92,49 +119,90 @@ ${data.message}
 
 ---
 Este email foi enviado automaticamente pelo formulário de contacto do website Serv2all.
-        `;
+      `;
 
-        const emailResponse = await fetch(
-          "https://api.brevo.com/v3/smtp/email",
+      const emailPayload = {
+        sender: {
+          name: "Serv2all Website",
+          email: fromEmail || "noreply@serv2all.pt"
+        },
+        to: [{ email: toEmail || "info@serv2all.pt" }],
+        cc: [{ email: data.email }],
+        subject: subject,
+        htmlContent: htmlContent,
+        textContent: textContent,
+      };
+
+      console.log("Enviando email via Brevo para:", toEmail || "info@serv2all.pt");
+
+      const emailResponse = await fetch(
+        "https://api.brevo.com/v3/smtp/email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "api-key": brevoKey,
+          },
+          body: JSON.stringify(emailPayload),
+        }
+      );
+
+      const responseText = await emailResponse.text();
+
+      if (!emailResponse.ok) {
+        console.error("Erro ao enviar email via Brevo:", {
+          status: emailResponse.status,
+          statusText: emailResponse.statusText,
+          response: responseText
+        });
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Mensagem recebida com sucesso! (Erro ao enviar email - verifique logs)"
+          }),
           {
-            method: "POST",
+            status: 200,
             headers: {
+              ...corsHeaders,
               "Content-Type": "application/json",
-              "api-key": brevoKey,
             },
-            body: JSON.stringify({
-              sender: { name: "Serv2all Website", email: fromEmail },
-              to: [{ email: toEmail }],
-              cc: [{ email: data.email }],
-              subject: subject,
-              htmlContent: htmlContent,
-              textContent: textContent,
-            }),
           }
         );
+      }
 
-        if (!emailResponse.ok) {
-          const errorText = await emailResponse.text();
-          console.error("Erro ao enviar email via Brevo:", errorText);
+      console.log("Email enviado com sucesso via Brevo:", responseText);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Mensagem recebida e email enviado com sucesso!"
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
         }
-      } catch (emailError) {
-        console.error("Erro ao enviar email:", emailError);
-      }
-    }
+      );
+    } catch (emailError) {
+      console.error("Exceção ao enviar email:", emailError);
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Mensagem recebida com sucesso!"
-      }),
-      {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Mensagem recebida com sucesso! (Erro ao enviar email - verifique logs)"
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
   } catch (error) {
     console.error("Erro na função:", error);
     return new Response(
